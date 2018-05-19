@@ -5,19 +5,28 @@ const bodyParser = require('body-parser');
 const port = 3000; //porta padrão
 const mysql = require('mysql');
 let cont = 1;
-let valores = '{';
+let valores = [];
 const file = 'c:/valor.json';
 
 const connection = mysql.createConnection({
-    host: 'localhost',
+    host: 'localhost', 
     user:'projeti',
     password:'gerico14599',
     database: 'server_sensor'
 });
 
+
 //configurando o body parser para pegar POSTS mais tarde
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
+
+app.use(function (req,res, next){
+    res.setHeader('Access-Control-Allow-Origin','*');
+    res.setHeader('Access-Control-Allow-Methods','GET, POST, OPTIONS, PUT, PATCH, DELETE');
+    res.setHeader('Access-Control-Allow-Headers','X-Requested-with,content-type');
+    res.setHeader('Access-Control-Allow-Credentials',true);
+    next();
+});
 
 //definindo as rotas
 const router = express.Router();
@@ -25,27 +34,24 @@ const router = express.Router();
 conect();
 
 router.post('/enviarbd', (req, res) => {
-    let data = new Date();
-
-    var dia     = data.getDate();           // 1-31
-    var mes     = data.getMonth();          // 0-11 (zero=janeiro)
-    var ano4    = data.getFullYear();       // 4 dígitos
-    var hora    = data.getHours();          // 0-23
-    var min     = data.getMinutes();        // 0-59
-    var seg     = data.getSeconds();        // 0-59
-
-  
-    valores += '"tempo-'+ cont +'":"'+ dia +'-' + mes + '-' + ano4 + '-' + hora + ':' + min + ':' + seg + '", "valor-'+ cont +'":"' + req.body.valor + '"} ';
-    console.log('valores ' + cont);
-   
-        console.log(valores);
-        addRows(connection,valores);
+    let data = Math.floor(Math.random() * 10);
+    let valor = req.body.valor
+    valores.push([data,valor]);
+    console.log('valore.length => ' + valores.length);
+if(valores.length == 5){
+    console.log('valores => ' + valores);
+    addRows(connection,valores);
+}
+res.json({message: 'funfou'});
+    //valores += '"tempo-'+ cont +'":"'+ dia +'-' + mes + '-' + ano4 + '-' + hora + ':' + min + ':' + seg + '", "valor-'+ cont +'":"' + req.body.valor + '"} ';
     
-    res.json({message: 'funfou'});
+
 });
 
 router.get('/receberionic', (req, res) => {
-    res.json({ message: 'teste!'});
+    console.log("conectou");
+    //res.json({ message: 'teste!'});
+    select(connection,res);
 });
 
 
@@ -58,20 +64,31 @@ function conect(val){
                     if(err){
                         return console.log(err);
                     }else{
-                        console.log("conectou!");
+                        console.log("funfou!");
                     }
                    
                 });
         
 }
 
+function select(conn,res){
+
+    const select = "SELECT * FROM dados";
+
+    conn.query(select, function (error, results, fields){
+        if(error) return console.log(error);
+        res.json(results);
+        console.log('enviou registros!');
+        conn.end();
+    });
+}
+
 function addRows(conn,valor){
-    const sql = "INSERT INTO dados VALUES(?)";
+    const sql = "INSERT INTO dados(id,data) VALUES ?";
     const values = valor;
-    conn.query(sql, values, function (error, results, fields){
+    conn.query(sql, [values], function (error, results, fields){
             if(error) return console.log(error);
             console.log('adicionou registros!');
-            valores = '{';
         });
   }
 
