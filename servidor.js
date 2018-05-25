@@ -7,7 +7,14 @@ const mysql = require('mysql');
 var db = require('./dbJson.js');
 let valores = [];
 const file = 'c:/valor.json';
+const crypto = require('crypto');
 
+//dados da criptografia
+const criptografar_dados = {
+    algoritmo: "aes256",
+    segredo: "asd123",
+    tipo: "hex"
+}
 
 const connection = mysql.createConnection({
     host: 'localhost', 
@@ -32,6 +39,27 @@ app.use(function (req,res, next){
 
 //definindo as rotas
 const router = express.Router();
+
+//criptografando senha
+function criptografar(senha){
+    const cypher = crypto.createCipher(criptografar_dados.algoritmo, criptografar_dados.segredo);
+    cypher.update(senha);
+    return cypher.final(criptografar_dados.tipo);
+}
+//rota de cadastro de novo usuario
+router.post('/inserirUsuario', (req, res)=>{    
+    const nomeUsuario = req.body.nomeUsuario;
+    const senha_criptografada = criptografar(req.body.senha);
+    //console.log(nomeUsuario);
+    //console.log(senha_criptografada);
+    cadastroNovoUsuario(connection,res,nomeUsuario,senha_criptografada);    
+});
+//rota para autenticar usuario cadastrado
+router.post('/autenticaUsuario', (req, res) => {
+    const nome = req.body.nome;
+    const senha = criptografar(req.body.senha);
+    autenticaUsuario(connection, res, nome, senha); 
+});
 
 router.post('/enviarbd', (req, res) => {
     valores = req.body;
@@ -114,6 +142,39 @@ function conect(val){
             console.log("[" + formhora + "] Banco de dados conectado");
         }
     });
+}
+
+function cadastroNovoUsuario(connection, res, nomeUsuario, senha_criptografada){
+    const buscaDados = "SELECT nomeusuario FROM login WHERE nomeusuario = ?";
+    
+    connection.query(buscaDados, [nomeUsuario] , function(error, results){
+        if(error) res.json(error);
+        else if(results.length == 1){
+            res.json('existe');
+        } else if(results.length == 0){
+            //cadastrar no banco o usuario
+            const insereDados = "INSERT INTO login VALUES (?, ?)";
+            connection.query(insereDados, [nomeUsuario, senha_criptografada], function(error, results){
+                if(error) res.json(error);
+                else res.json('sucesso');
+            });
+        }
+        //connection.end();       
+    });    
+}
+
+function autenticaUsuario(connection, res, nome, senha){
+    const buscaDados = "SELECT *FROM login WHERE nomeusuario = ? and senha = ?";
+
+    connection.query(buscaDados, [nome, senha], function(error, results){
+        if(error) console.log(error);
+        else if(results.length == 1){
+            res.json('sucesso');
+        } else if(results.length == 0){
+            res.json('noExiste');
+        }
+    });
+    //connection.end();
 }
 
 //inicia o servidor
