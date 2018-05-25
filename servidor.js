@@ -35,45 +35,49 @@ const router = express.Router();
 
 router.post('/enviarbd', (req, res) => {
     valores = req.body;
-    var data = new Date();
-    var dia = data.getDate();// 1-31
-    var mes = data.getMonth() + 1;// 0-11 (zero=janeiro)
-    var ano = data.getFullYear();// 4 dígitos
-    var formdata = dia + "-" + mes + "-" + ano; 
-    console.log('valore.length => ' + valores.length);
-    console.log('valores => ' + valores);
+    var formhora =  formData("hora"); 
+    var formdata = formData("data");
+    //console.log('[' + formhora + '] valore.length => ' + valores.length);
+    console.log('[' + formhora + '] Requisição para salvar informações via POST');
     var local = __dirname + '/db/'+ formdata +'.json';
     var fileContent = fs.exists(local, function(exists){
-    console.log("exists ",exists);
     if(exists){
-        console.log("existe");
+        console.log("[" + formhora + "] O arquivo já existe");
+        console.log("[" + formhora + "] Adicionando informações no arquivo: " + formdata + ".json");
         var fileJson = db.getData(formdata);
         fileJson.push(valores);
         db.saveData(fileJson,formdata);
+        console.log("[" + formhora + "] Informações adicionadas no arquivo: " + formdata + ".json");
         res.json(fileJson);
     }else{
-        console.log("nao existe");
+        console.log("[" + formhora + "] o arquivo não existe");
+        console.log("[" + formhora + "] Crinado arquivo: " + formdata + ".json");
         valores = JSON.stringify(valores);
         valores = "[" + valores + "]";
         valores = JSON.parse(valores);
         db.saveData(valores,formdata);
+        console.log("[" + formhora + "] Arquivo (" + formdata + ".json ) Criado");
         res.json(valores);
     }
     });
 });
 
 router.get('/receberionic', (req, res) => {
-    console.log("conectou ", req.query.data);
+    
     var data = req.query.data;
+    var formhora =  formData("hora"); 
+    console.log("[" + formhora + "] Requisição de informações do dia: ", req.query.data);
+    console.log("[" + formhora + "] requisitado pelo ip: ",req.ip);
+    console.log("[" + formhora + "] protocol: ",req.protocol);
     var campo = req.query.campo;
     var local = __dirname + '/db/'+ data +'.json';
     var fileContent = fs.exists(local, function(exists){
-        console.log("exists ",exists);
         if(exists){
+            console.log("[" + formhora + "] o arquivo existe");
             var arquivoJson = db.getData(data);
             res.json(arquivoJson);
         }else{
-            console.log("nao existe");
+            console.log("[" + formhora + "] o arquivo nao existe");
             res.json({"texto":"Não existe registros para a busca: " + data});
         }
     });
@@ -81,60 +85,36 @@ router.get('/receberionic', (req, res) => {
 
 app.use('/', router);
 
+function formData(tipo){
+    var data = new Date();
+    var dia = data.getDate();// 1-31
+    var mes = data.getMonth() + 1;// 0-11 (zero=janeiro)
+    var ano = data.getFullYear();// 4 dígitos
+    var hora = data.getHours();          // 0-23
+    var min = data.getMinutes();        // 0-59
+    var seg = data.getSeconds();        // 0-59
+    var mseg = data.getMilliseconds();   // 0-999
+    var formhora = hora + ":" + min + ":" + seg + ":" + mseg; 
+    var formdata = dia + "-" + mes + "-" + ano; 
+    if(tipo == "hora"){
+        return formhora;
+    }
+    if(tipo == "data"){
+        return formdata;
+    }
+    
+}
+
 function conect(val){
+    var formhora =  formData("hora");
     connection.connect(function(err){
         if(err){
             return console.log(err);
         }else{
-            console.log("funfou!");
+            console.log("[" + formhora + "] Banco de dados conectado");
         }
     });
 }
-
-function select(conn,data,campo,res){
-    //conect();
-    console.log("data = ",data);
-        
-        console.log("pesquisa especifica para = ", data , " do campo ",campo);
-        const select = "SELECT * FROM dados where "+ campo +" = ? ";
-
-    conn.query(select,data, function (error, results, fields){
-        if(error) return console.log(error);
-        res.json(results);
-        console.log('enviou registros!');
-        //conn.end();
-    });
-}
-
-function select2(conn,res){
-    //conect();
-            console.log("pesquisa total");
-            const select = "SELECT * FROM dados";
-
-    conn.query(select, function (error, results, fields){
-        if(error) return console.log(error);
-        res.json(results);
-        console.log('enviou registros!');
-        //conn.end();
-    });
-}
-
-function addRows(conn,valor){
-    //conect();
-    const sql = "INSERT INTO dados(valor,data) VALUES ?";
-    const values = valor;
-    conn.query(sql, [values], function (error, results, fields){
-            if(error){
-                return console.log(error);
-                //conn.end();
-                valores = [];
-            }else{
-                console.log('adicionou registros!');
-                //conn.end();
-                valores = [];
-            } 
-        });
-  }
 
 //inicia o servidor
 app.listen(port);
