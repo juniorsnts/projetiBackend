@@ -47,7 +47,9 @@ function criptografar(senha){
     return cypher.final(criptografar_dados.tipo);
 }
 //rota de cadastro de novo usuario
-router.post('/inserirUsuario', (req, res)=>{    
+router.post('/inserirUsuario', (req, res)=>{
+    var formhora =  formData("hora");
+    console.log('[' + formhora + '] Requisição para inserir usuario via POST');    
     const nomeUsuario = req.body.nomeUsuario;
     const senha_criptografada = criptografar(req.body.senha);
     //console.log(nomeUsuario);
@@ -56,6 +58,8 @@ router.post('/inserirUsuario', (req, res)=>{
 });
 //rota para autenticar usuario cadastrado
 router.post('/autenticaUsuario', (req, res) => {
+    var formhora =  formData("hora");
+    console.log('[' + formhora + '] Requisição para autenticar usuario via POST');
     const nome = req.body.nome;
     const senha = criptografar(req.body.senha);
     autenticaUsuario(connection, res, nome, senha); 
@@ -70,20 +74,26 @@ router.post('/enviarbd', (req, res) => {
     var local = __dirname + '/db/'+ formdata +'.json';
     var fileContent = fs.exists(local, function(exists){
     if(exists){
+        formhora =  formData("hora");
         console.log("[" + formhora + "] O arquivo já existe");
+        formhora =  formData("hora");
         console.log("[" + formhora + "] Adicionando informações no arquivo: " + formdata + ".json");
         var fileJson = db.getData(formdata);
         fileJson.push(valores);
         db.saveData(fileJson,formdata);
+        formhora =  formData("hora");
         console.log("[" + formhora + "] Informações adicionadas no arquivo: " + formdata + ".json");
         res.json(fileJson);
     }else{
+        formhora =  formData("hora");
         console.log("[" + formhora + "] o arquivo não existe");
+        formhora =  formData("hora");
         console.log("[" + formhora + "] Crinado arquivo: " + formdata + ".json");
         valores = JSON.stringify(valores);
         valores = "[" + valores + "]";
         valores = JSON.parse(valores);
         db.saveData(valores,formdata);
+        formhora =  formData("hora");
         console.log("[" + formhora + "] Arquivo (" + formdata + ".json ) Criado");
         res.json(valores);
     }
@@ -95,18 +105,22 @@ router.get('/receberionic', (req, res) => {
     var data = req.query.data;
     var formhora =  formData("hora"); 
     console.log("[" + formhora + "] Requisição de informações do dia: ", req.query.data);
+    formhora =  formData("hora");
     console.log("[" + formhora + "] requisitado pelo ip: ",req.ip);
+    formhora =  formData("hora");
     console.log("[" + formhora + "] protocol: ",req.protocol);
     var campo = req.query.campo;
     var local = __dirname + '/db/'+ data +'.json';
     var fileContent = fs.exists(local, function(exists){
         if(exists){
+            formhora =  formData("hora");
             console.log("[" + formhora + "] o arquivo existe");
             var arquivoJson = db.getData(data);
             res.json(arquivoJson);
         }else{
+            formhora =  formData("hora");
             console.log("[" + formhora + "] o arquivo nao existe");
-            res.json({"texto":"Não existe registros para a busca: " + data});
+            res.json("noexiste");
         }
     });
 });
@@ -145,18 +159,25 @@ function conect(val){
 }
 
 function cadastroNovoUsuario(connection, res, nomeUsuario, senha_criptografada){
+    var formhora =  formData("hora");
     const buscaDados = "SELECT nomeusuario FROM login WHERE nomeusuario = ?";
     
     connection.query(buscaDados, [nomeUsuario] , function(error, results){
         if(error) res.json(error);
         else if(results.length == 1){
+            console.log('[' + formhora + '] Usuario ja existe');
             res.json('existe');
         } else if(results.length == 0){
             //cadastrar no banco o usuario
+            formhora =  formData("hora");
+            console.log('[' + formhora + '] Criando novo usuario');
             const insereDados = "INSERT INTO login VALUES (?, ?)";
             connection.query(insereDados, [nomeUsuario, senha_criptografada], function(error, results){
                 if(error) res.json(error);
-                else res.json('sucesso');
+                else {
+                    formhora =  formData("hora");
+                    console.log('[' + formhora + '] Usuario criado');
+                    res.json('sucesso');}
             });
         }
         //connection.end();       
@@ -164,13 +185,19 @@ function cadastroNovoUsuario(connection, res, nomeUsuario, senha_criptografada){
 }
 
 function autenticaUsuario(connection, res, nome, senha){
+    var formhora =  formData("hora");
+    console.log('[' + formhora + '] Fazendo busca do usuario no banco de dados');
     const buscaDados = "SELECT *FROM login WHERE nomeusuario = ? and senha = ?";
 
     connection.query(buscaDados, [nome, senha], function(error, results){
         if(error) console.log(error);
         else if(results.length == 1){
+            formhora =  formData("hora");
+            console.log('[' + formhora + '] Usuario autenticado com sucesso');
             res.json('sucesso');
         } else if(results.length == 0){
+            formhora =  formData("hora");
+            console.log('[' + formhora + '] Usuario não existe');
             res.json('noExiste');
         }
     });
