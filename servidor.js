@@ -90,6 +90,7 @@ router.post('/enviarbd', (req, res) => {
         db.saveData(fileJson,formdata);
         formhora =  formData("hora");
         console.log("[" + formhora + "] Informações adicionadas no arquivo: " + formdata + ".json");
+        console.log("[" + formhora + "]  Length do arquivo: " + formdata + ".json: " + fileJson.length);
         res.json("attDados");
     }else{
         formhora =  formData("hora");
@@ -137,12 +138,27 @@ app.use('/', router);
 function formData(tipo){
     var data = new Date();
     var dia = data.getDate();// 1-31
+    if (dia < 10){
+        dia = "0" + dia;
+    }
     var mes = data.getMonth() + 1;// 0-11 (zero=janeiro)
+    if (mes < 10){
+        mes = "0" + mes;
+    }
     var ano = data.getFullYear();// 4 dígitos
     var hora = data.getHours();          // 0-23
-    var min = data.getMinutes();        // 0-59
-    var seg = data.getSeconds();        // 0-59
-    var formhora = hora + ":" + min + ":" + seg ; 
+    if (hora < 10 || hora == 0){
+        hora = "0" + hora;
+    }
+    var min = data.getMinutes();// 0-59
+    if (min < 10 || min == 0){
+        min = "0" + min;
+    }
+    var seg = data.getSeconds();// 0-59
+    if (seg < 10 || seg == 0){
+        seg = "0" + seg;
+    }
+    var formhora = hora + ":" + min + ":" + seg; 
     var formdata = dia + "-" + mes + "-" + ano; 
     if(tipo == "hora"){
         return formhora;
@@ -157,7 +173,8 @@ function conect(val){
     var formhora =  formData("hora");
     connection.connect(function(err){
         if(err){
-            return console.log(err);
+            formhora =  formData("hora");
+            return console.log("[" + formhora + "] Erro no banco de dados");
         }else{
             console.log("[" + formhora + "] Banco de dados conectado");
         }
@@ -179,7 +196,10 @@ function cadastroNovoUsuario(connection, res, nomeUsuario, senha_criptografada){
             console.log('[' + formhora + '] Criando novo usuario');
             const insereDados = "INSERT INTO login VALUES (?, ?)";
             connection.query(insereDados, [nomeUsuario, senha_criptografada], function(error, results){
-                if(error) res.json(error);
+                if(error){
+                    console.log('[' + formhora + ']  Erro na criação do usuario');
+                    res.json(error);
+                } 
                 else {
                     formhora =  formData("hora");
                     console.log('[' + formhora + '] Usuario criado');
@@ -196,7 +216,11 @@ function autenticaUsuario(connection, res, nome, senha){
     const buscaDados = "SELECT *FROM login WHERE nomeusuario = ? and senha = ?";
 
     connection.query(buscaDados, [nome, senha], function(error, results){
-        if(error) console.log(error);
+        if(error){
+            formhora =  formData("hora");
+            console.log('[' + formhora + ']  Erro na autenticaçao do usuario');
+            res.json(error);
+        }
         else if(results.length == 1){
             formhora =  formData("hora");
             console.log('[' + formhora + '] Usuario autenticado com sucesso');
