@@ -17,9 +17,10 @@ const criptografar_dados = {
 }
 
 const connection = mysql.createConnection({
-    host: 'localhost', 
-    user:'projeti',
-    password:'gerico14599',
+    host: 'localhost',
+    port: 3306,
+    user: 'root',
+    password: '',
     database: 'server_sensor'
 });
 
@@ -29,13 +30,19 @@ conect();
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
 
-app.use(function (req,res, next){
-    res.setHeader('Access-Control-Allow-Origin','*');
-    res.setHeader('Access-Control-Allow-Methods','GET, POST, OPTIONS, PUT, PATCH, DELETE');
-    res.setHeader('Access-Control-Allow-Headers','X-Requested-with,content-type, Authorization');
-    res.setHeader('Access-Control-Allow-Credentials',true);
+app.use(function (req, res, next) {
+
+    res.setHeader('Access-Control-Allow-Origin', '*');
+
+    res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS, PUT, PATCH, DELETE');
+
+    res.setHeader('Access-Control-Allow-Headers', 'X-Requested-With,content-type');
+
+    res.setHeader('Access-Control-Allow-Credentials', true);
+
     next();
 });
+
 
 //definindo as rotas
 const router = express.Router();
@@ -83,7 +90,7 @@ router.post('/enviarbd', (req, res) => {
         db.saveData(fileJson,formdata);
         formhora =  formData("hora");
         console.log("[" + formhora + "] Informações adicionadas no arquivo: " + formdata + ".json");
-        res.json(fileJson);
+        res.json("attDados");
     }else{
         formhora =  formData("hora");
         console.log("[" + formhora + "] o arquivo não existe");
@@ -95,7 +102,7 @@ router.post('/enviarbd', (req, res) => {
         db.saveData(valores,formdata);
         formhora =  formData("hora");
         console.log("[" + formhora + "] Arquivo (" + formdata + ".json ) Criado");
-        res.json(valores);
+        res.json("newDados");
     }
     });
 });
@@ -135,8 +142,7 @@ function formData(tipo){
     var hora = data.getHours();          // 0-23
     var min = data.getMinutes();        // 0-59
     var seg = data.getSeconds();        // 0-59
-    var mseg = data.getMilliseconds();   // 0-999
-    var formhora = hora + ":" + min + ":" + seg + ":" + mseg; 
+    var formhora = hora + ":" + min + ":" + seg ; 
     var formdata = dia + "-" + mes + "-" + ano; 
     if(tipo == "hora"){
         return formhora;
