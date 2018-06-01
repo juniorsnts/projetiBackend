@@ -63,7 +63,7 @@ router.get('/receberionic', (req, res) => {
         }else{
             data = "0:0:0";
         }
-    }
+    } 
     var formhora =  formData("hora"); 
     console.log("[" + formhora + "] Requisição de informações do dia: ", data);
     formhora =  formData("hora");
