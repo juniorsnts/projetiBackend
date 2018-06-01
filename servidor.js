@@ -53,7 +53,7 @@ router.post('/enviarbd', (req, res) => {
 });
 
 router.get('/receberionic', (req, res) => {
-    var formdata =  formData("data");
+    var formdata =  formData("data"); 
     var data;
     if(req.query.atual == "true"){
         data = formdata;
