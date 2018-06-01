@@ -54,9 +54,18 @@ router.post('/enviarbd', (req, res) => {
 
 router.get('/receberionic', (req, res) => {
     var formdata =  formData("data");
-    var data = req.query.data;
+    var data;
+    if(req.query.atual == "true"){
+        data = formdata;
+    }else{
+        if(req.query.atual == "false"){
+            data = req.query.data;
+        }else{
+            data = "0:0:0";
+        }
+    }
     var formhora =  formData("hora"); 
-    console.log("[" + formhora + "] Requisição de informações do dia: ", req.query.data);
+    console.log("[" + formhora + "] Requisição de informações do dia: ", data);
     formhora =  formData("hora");
     console.log("[" + formhora + "] requisitado pelo ip: ",req.ip);
     dbJson.receberionic(data,res);
