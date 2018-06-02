@@ -17,6 +17,12 @@ var obj = {
         if(io != null){
             io.emit('valores',valores);
         }
+    },
+
+    alert: function(alert){
+        if(io != null){
+            io.emit('alert',true);
+        }
     }
 }
 
