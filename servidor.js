@@ -48,7 +48,7 @@ router.post('/updateUsuario', (req, res) =>{
     console.log('[' + formhora + '] Requisiçao para update de usuario');
     const antigoNome = req.body.antigoNome;
     const novoNome = req.body.novoNome;
-    const senha = req.body.senha;
+    const senha = cripto.criptografar(req.body.senha);
     dbMysql.updateNomeUsuario(res, antigoNome, novoNome, senha);
 });
 
@@ -57,7 +57,7 @@ router.post('/updateSenha', (req, res) =>{
     console.log('[' + formhora + '] Requisiçao para update de usuario');
     const nomeUsuario = req.body.nomeUsuario;
     const senhaAntiga = req.body.senhaAntiga;
-    const novaSenha = req.body.novaSenha;
+    const novaSenha = cripto.criptografar(req.body.novaSenha);
     dbMysql.updateSenha(res, nomeUsuario, senhaAntiga, novaSenha);
 });
 
