@@ -43,6 +43,24 @@ router.post('/autenticaUsuario', (req, res) => {
     dbMysql.autenticaUsuario(res, nome, senha); 
 });
 
+router.post('/updateUsuario', (req, res) =>{
+    var formhora = formData("hora");
+    console.log('[' + formhora + '] Requisiçao para update de usuario');
+    const antigoNome = req.body.antigoNome;
+    const novoNome = req.body.novoNome;
+    const senha = req.body.senha;
+    dbMysql.updateNomeUsuario(res, antigoNome, novoNome, senha);
+});
+
+router.post('/updateSenha', (req, res) =>{
+    var formhora = formData("hora");
+    console.log('[' + formhora + '] Requisiçao para update de usuario');
+    const nomeUsuario = req.body.nomeUsuario;
+    const senhaAntiga = req.body.senhaAntiga;
+    const novaSenha = req.body.novaSenha;
+    dbMysql.updateSenha(res, nomeUsuario, senhaAntiga, novaSenha);
+});
+
 router.post('/enviarbd', (req, res) => {
     let valores = req.body;
     socket.emit(valores);

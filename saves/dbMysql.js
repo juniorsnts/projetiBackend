@@ -74,7 +74,79 @@ var obj = {
             }
         });
         //connection.end();
-        }
+        },
+
+    updateNomeUsuario: function(res, antigoNome, novoNome, senha) {
+        var formhora = formData("hora");
+        console.log('[' + formhora + '] Fazendo o update do usuario no banco de dados');    
+        const buscaDados = "SELECT *FROM login WHERE nomeusuario = ? AND senha = ?";
+        
+        connection.query(buscaDados, [antigoNome, senha], function(error, results){
+            if(error){
+                formhora = formData("hora");
+                console.log('[' + formhora + ']  Erro na autenticaçao do usuario para update');
+                res.json(error);
+            } 
+            else if(results.length == 1){
+                formhora =  formData("hora");
+                console.log('[' + formhora + '] Usuario autenticado e fazendo o update do nome'); 
+                //fazendo o update
+                const updateDados = "UPDATE login SET nomeusuario = ? WHERE nomeusuario = ?";
+                connection.query(updateDados, [novoNome, antigoNome], function(error, results){
+                    if(error){
+                        formhora =  formData("hora");
+                        console.log('[' + formhora + ']  Erro no update do usuario');
+                        res.json(error);
+                    }
+                    else{
+                        formhora =  formData("hora");
+                        console.log('[' + formhora + '] usuario atualizado');
+                        res.json('updateUsuario');
+                    }
+                });
+            }
+            else if(results.length == 0){
+                formhora =  formData("hora");
+                console.log('[' + formhora + '] Usuario não existe no update');
+            }
+        });
+        },
+
+    updateSenha: function(res, nomeUsuario, senhaAntiga, novaSenha){
+        var formhora = formData("hora");
+        console.log('[' + formhora + '] Fazendo o update do usuario no banco de dados');    
+        const buscaDados = "SELECT *FROM login WHERE nomeusuario = ? AND senha = ?";
+        
+        connection.query(buscaDados, [nomeUsuario, senhaAntiga], function(error, results){
+            if(error){
+                formhora = formData("hora");
+                console.log('[' + formhora + ']  Erro na autenticaçao do usuario para update');
+                res.json(error);
+            } 
+            else if(results.length == 1){
+                formhora =  formData("hora");
+                console.log('[' + formhora + '] Usuario autenticado e fazendo o update do nome'); 
+                //fazendo o update
+                const updateDados = "UPDATE login SET senha = ? WHERE nomeusuario = ?";
+                connection.query(updateDados, [novaSenha, nomeUsuario], function(error, results){
+                    if(error){
+                        formhora =  formData("hora");
+                        console.log('[' + formhora + ']  Erro no update da senha do usuario');
+                        res.json(error);
+                    }
+                    else{
+                        formhora =  formData("hora");
+                        console.log('[' + formhora + '] senha do usuario atualizado');
+                        res.json('updateSenha');
+                    }
+                });
+            }
+            else if(results.length == 0){
+                formhora =  formData("hora");
+                console.log('[' + formhora + '] Usuario não existe no update da senha');
+            }
+        });        
+    }
 };
  
 module.exports = obj;
