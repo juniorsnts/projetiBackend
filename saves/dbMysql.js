@@ -16,7 +16,7 @@ var obj = {
         connection.connect(function(err){
         if(err){
             formhora =  formData("hora");
-            return console.log("[" + formhora + "] Erro no banco de dados");
+            return console.log("[" + formhora + "] Erro no banco de dados: " + err);
         }else{
             console.log("[" + formhora + "] Banco de dados conectado");
         }

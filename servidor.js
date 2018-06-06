@@ -5,7 +5,7 @@ const bodyParser = require('body-parser');
 const dbMysql = require('./saves/dbMysql.js');
 const socket = require('./socket/socket-io.js');
 const cripto = require('./cripto/criptografia.js');
-const port = 3000; //porta padrão
+var port = process.env.PORT || 3398; //porta padrão
 var dbJson = require('./saves/dbJson.js');
 let http = require('http').Server(app);
 
@@ -76,7 +76,7 @@ socket.connect(http);
 
 app.use('/', router);
 //inicia o servidor
-http.listen(3000, function(){
+http.listen(port, function(){
     var formhora =  formData("hora");
-    console.log('[' + formhora + '] listening on port 3000');
+    console.log('[' + formhora + '] listening on port ' + port);
 });
