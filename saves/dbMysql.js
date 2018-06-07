@@ -61,7 +61,7 @@ var obj = {
             if(error){
                 formhora =  formData("hora");
                 console.log('[' + formhora + ']  Erro na autenticaçao do usuario');
-                res.json(error);
+                res.json('Erro');
             }
             else if(results.length == 1){
                 formhora =  formData("hora");

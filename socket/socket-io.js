@@ -21,9 +21,16 @@ var obj = {
 
     alert: function(alert){
         if(io != null){
-            io.emit('alert',true);
+            io.emit('alert',alert);
+        }
+    },
+
+    status: function(status){
+        if(io != null){
+            io.emit('status',status);
         }
     }
+    
 }
 
 module.exports = obj;

@@ -8,6 +8,8 @@ const cripto = require('./cripto/criptografia.js');
 var port = process.env.PORT || 3398; //porta padrão
 var dbJson = require('./saves/dbJson.js');
 let http = require('http').Server(app);
+let respAlarme = false;
+let statusAlarme = false;
 
 dbMysql.connect();
 
@@ -38,9 +40,15 @@ router.post('/inserirUsuario', (req, res)=>{
 router.post('/autenticaUsuario', (req, res) => {
     var formhora =  formData("hora");
     console.log('[' + formhora + '] Requisição para autenticar usuario via POST');
-    const nome = req.body.nome;
-    const senha = cripto.criptografar(req.body.senha);
-    dbMysql.autenticaUsuario(res, nome, senha); 
+    if(req.body.senha != undefined){
+        const nome = req.body.nome;
+        const senha = cripto.criptografar(req.body.senha);
+        dbMysql.autenticaUsuario(res, nome, senha); 
+    }else{
+        console.log('[' + formhora + '] Erro na requisição');
+        res.json('Erro');
+    }
+    
 });
 
 router.post('/updateUsuario', (req, res) =>{
@@ -56,7 +64,7 @@ router.post('/updateSenha', (req, res) =>{
     var formhora = formData("hora");
     console.log('[' + formhora + '] Requisiçao para update de usuario');
     const nomeUsuario = req.body.nomeUsuario;
-    const senhaAntiga = req.body.senhaAntiga;
+    const senhaAntiga = cripto.criptografar(req.body.senhaAntiga);
     const novaSenha = cripto.criptografar(req.body.novaSenha);
     dbMysql.updateSenha(res, nomeUsuario, senhaAntiga, novaSenha);
 });
@@ -68,6 +76,50 @@ router.post('/enviarbd', (req, res) => {
     var formdata = formData("data");
     console.log('[' + formhora + '] Requisição para salvar informações via POST');
     dbJson.enviarbd(formdata,valores,res);
+});
+
+router.post('/alarme', (req, res) => {
+    let valores = req.body;
+    var formhora =  formData("hora"); 
+    if(valores.valor == "TRUE" && statusAlarme == false){
+        statusAlarme = true;
+        console.log('[' + formhora + '] Requisição do alarme com o valor ' + valores.valor);
+        socket.alert("alarteon");
+        res.json(respAlarme);
+    }else if(valores.valor == "FALSE" && statusAlarme == true){
+        statusAlarme = false;
+        socket.alert("alarteoff");
+        res.json(respAlarme);
+    }else if(valores.valor == "FALSE"){
+        statusAlarme = false;
+        res.json(respAlarme);
+    }
+    
+});
+
+router.get('/statusalarme', (req, res) => {
+    var formhora =  formData("hora"); 
+    if(req.query.status == "true"){
+        respAlarme = true;
+        socket.status(respAlarme);
+        console.log('[' + formhora + '] respAlarme mudado para ' + respAlarme);
+        res.json(respAlarme);
+    }else{
+        if(req.query.status == "false"){
+            respAlarme = false;
+            socket.status(respAlarme);
+            console.log('[' + formhora + '] respAlarme mudado para ' + respAlarme);
+            res.json(respAlarme);
+        }else{
+            res.json("erro");
+        }
+    } 
+});
+
+router.get('/receberstatus', (req, res) => { 
+    var formhora =  formData("hora"); 
+    console.log("[" + formhora + "] Requisição do status do sensor");
+    res.json(respAlarme);
 });
 
 router.get('/receberionic', (req, res) => {
