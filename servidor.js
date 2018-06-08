@@ -81,17 +81,18 @@ router.post('/enviarbd', (req, res) => {
 router.post('/alarme', (req, res) => {
     let valores = req.body;
     var formhora =  formData("hora"); 
-    if(valores.valor == "TRUE" && statusAlarme == false){
+    if(valores.valor == "TRUE" && statusAlarme == false && respAlarme == true){
         statusAlarme = true;
         console.log('[' + formhora + '] Requisição do alarme com o valor ' + valores.valor);
         socket.alert("alarteon");
         res.json(respAlarme);
-    }else if(valores.valor == "FALSE" && statusAlarme == true){
+    }else if(valores.valor == "FALSE" && statusAlarme == true && respAlarme == true){
         statusAlarme = false;
-        socket.alert("alarteoff");
+        console.log('[' + formhora + '] Requisição do alarme com o valor ' + valores.valor);
+        socket.alert("alarteoff" );
         res.json(respAlarme);
-    }else if(valores.valor == "FALSE"){
-        statusAlarme = false;
+    }else{
+        console.log('[' + formhora + '] Alarme valor => ' + valores.valor + ', statusAlarme => '+ statusAlarme + ', respAlarme =>' + respAlarme);
         res.json(respAlarme);
     }
     
@@ -107,6 +108,7 @@ router.get('/statusalarme', (req, res) => {
     }else{
         if(req.query.status == "false"){
             respAlarme = false;
+            statusAlarme = false
             socket.status(respAlarme);
             console.log('[' + formhora + '] respAlarme mudado para ' + respAlarme);
             res.json(respAlarme);
