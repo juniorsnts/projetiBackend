@@ -5,7 +5,8 @@ const bodyParser = require('body-parser');
 const dbMysql = require('./saves/dbMysql.js');
 const socket = require('./socket/socket-io.js');
 const cripto = require('./cripto/criptografia.js');
-var port = process.env.PORT || 3398; //porta padrão
+//var port = process.env.PORT || 3398; //porta para internet
+var port = process.env.PORT || 3000; //porta para local
 var dbJson = require('./saves/dbJson.js');
 let http = require('http').Server(app);
 let respAlarme = false;
@@ -75,6 +76,8 @@ router.post('/enviarbd', (req, res) => {
     var formhora =  formData("hora"); 
     var formdata = formData("data");
     console.log('[' + formhora + '] Requisição para salvar informações via POST');
+    formhora =  formData("hora");
+    console.log("[" + formhora + "] requisitado pelo ip: ",req.ip);
     dbJson.enviarbd(formdata,valores,res);
 });
 
@@ -84,15 +87,21 @@ router.post('/alarme', (req, res) => {
     if(valores.valor == "TRUE" && statusAlarme == false && respAlarme == true){
         statusAlarme = true;
         console.log('[' + formhora + '] Requisição do alarme com o valor ' + valores.valor);
+        formhora =  formData("hora");
+        console.log("[" + formhora + "] requisitado pelo ip: ",req.ip);
         socket.alert("alarteon");
         res.json(respAlarme);
     }else if(valores.valor == "FALSE" && statusAlarme == true && respAlarme == true){
         statusAlarme = false;
         console.log('[' + formhora + '] Requisição do alarme com o valor ' + valores.valor);
+        formhora =  formData("hora");
+        console.log("[" + formhora + "] requisitado pelo ip: ",req.ip);
         socket.alert("alarteoff" );
         res.json(respAlarme);
     }else{
-        console.log('[' + formhora + '] Alarme valor => ' + valores.valor + ', statusAlarme => '+ statusAlarme + ', respAlarme =>' + respAlarme);
+        //console.log('[' + formhora + '] Alarme valor => ' + valores.valor + ', statusAlarme => '+ statusAlarme + ', respAlarme =>' + respAlarme);
+        formhora =  formData("hora");
+        //console.log("[" + formhora + "] requisitado pelo ip: ",req.ip);
         res.json(respAlarme);
     }
     
